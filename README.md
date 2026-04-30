@@ -10,11 +10,23 @@ Starter template for a FastMCP 3.x server.
 
 ## Run locally
 
+If you use `uv`:
+
+MCP inspector:
+
 ```bash
-pip install -r requirements.txt
+nvm install 20
+nvm use 20
+node -v
+npx @modelcontextprotocol/inspector
 ```
 
-If you use `uv`:
+http://127.0.0.1:6274
+
+Settings:<br>
+Transport Type: STDIO<br>
+Command: /usr/local/bin/python3<br>
+Arguments: main.py<br>
 
 ```bash
 uv sync
@@ -24,7 +36,9 @@ uv run python main.py
 If you use your existing virtual environment:
 
 ```bash
-python main.py
+python3 -m venv .venv
+pip install -r requirements.txt
+python3 main.py
 ```
 
 ## Next steps
