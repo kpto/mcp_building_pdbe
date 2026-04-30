@@ -10,6 +10,10 @@ Starter template for a FastMCP 3.x server.
 
 ## Run locally
 
+```bash
+pip install -r requirements.txt
+```
+
 If you use `uv`:
 
 ```bash
