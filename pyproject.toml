@@ -7,3 +7,6 @@ requires-python = ">=3.12"
 dependencies = [
     "fastmcp>=3.2.4",
 ]
+
+[project.scripts]
+pdbe-mcp = "main:main"
