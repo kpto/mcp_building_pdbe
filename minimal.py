@@ -37,6 +37,7 @@ def main() -> None:
     mcp.run(
         transport="http",  # use http instead of stdio unless the server is purely for local only
         host="0.0.0.0",  # listen on all interfaces for serving the public, change to "localhost" to restrict to local only
+        stateless_http=True,  # set to True if the server does not maintain any state between calls, which is common for API wrappers. This allows for better performance and scalability.
     )
 
 

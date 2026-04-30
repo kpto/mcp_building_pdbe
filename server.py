@@ -82,7 +82,11 @@ def get_uniprot_mappings(pdb_id: str) -> dict[str, Any]:
 
 def main() -> None:
     """Run the MCP server."""
-    mcp.run(transport="http", host="0.0.0.0")
+    mcp.run(
+        transport="http",
+        host="0.0.0.0",
+        stateless_http=True,
+    )
 
 
 if __name__ == "__main__":

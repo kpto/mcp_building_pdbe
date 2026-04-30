@@ -54,6 +54,7 @@ def main() -> None:
     mcp.run(
         transport="http",
         host="0.0.0.0",
+        stateless_http=True,
     )
 
 
