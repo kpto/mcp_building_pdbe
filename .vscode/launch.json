@@ -4,12 +4,23 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         {
-            "name": "Python Debugger: Module",
+            "name": "Minimal",
             "type": "debugpy",
             "request": "launch",
             "module": "minimal"
+        },
+        {
+            "name": "Wrapper",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "wrapper"
+        },
+        {
+            "name": "Custom",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "server"
         }
     ]
 }
