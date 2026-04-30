@@ -30,6 +30,34 @@ def get_entry_summary(pdb_id: str) -> dict[str, Any]:
 
 
 @mcp.tool()
+def get_entry_summaries(pdb_ids: list[str]) -> dict[str, Any]:
+    """Get concise summary metadata for multiple PDB entries."""
+    if not pdb_ids:
+        return {
+            "ok": False,
+            "endpoint": "summary",
+            "results": {},
+            "error": {
+                "type": "empty_pdb_ids",
+                "message": "pdb_ids must contain at least one PDB ID.",
+            },
+        }
+
+    results: dict[str, PDBeResult] = {}
+    for pdb_id in pdb_ids:
+        result = _fetch_entry("summary", pdb_id)
+        result_key = result["pdb_id"] or str(pdb_id)
+        results[result_key] = result
+
+    return {
+        "ok": True,
+        "endpoint": "summary",
+        "results": results,
+        "error": None,
+    }
+
+
+@mcp.tool()
 def get_entry_molecules(pdb_id: str) -> dict[str, Any]:
     """Get molecule and entity details for a PDB entry."""
     return _fetch_entry("molecules", pdb_id)
