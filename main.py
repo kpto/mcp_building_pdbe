@@ -1,6 +1,7 @@
 import os
 import requests
 from fastmcp import FastMCP
+from dotenv import load_dotenv
 
 mcp = FastMCP("PDBe MCP Server")
 
@@ -12,6 +13,58 @@ def normalize_pdb_id(pdb_id: str) -> str:
     if len(pdb_id) != 4 or not pdb_id.isalnum():
         raise ValueError("pdb_id must be a 4-character alphanumeric id (e.g. 1cbs)")
     return pdb_id
+
+
+def call_llm(prompt: str, system_prompt: str | None = None, temperature: float = 0.2, max_tokens: int = 500) -> dict:
+    """
+    Call an OpenAI-compatible chat completion endpoint.
+
+    Required env var:
+      - LLM_API_KEY
+
+    Optional env vars:
+      - LLM_BASE_URL (default: https://api.openai.com/v1)
+      - LLM_MODEL (default: gpt-4o-mini)
+    """
+    api_key = os.getenv("LLM_API_KEY")
+    if not api_key:
+        raise ValueError("LLM_API_KEY is not set")
+
+    base_url = os.getenv("LLM_BASE_URL", "https://api.openai.com/v1").rstrip("/")
+    model = os.getenv("LLM_MODEL", "gpt-4o-mini")
+    url = f"{base_url}/chat/completions"
+
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({"role": "user", "content": prompt})
+
+    payload = {
+        "model": model,
+        "messages": messages,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+    }
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+
+    response = requests.post(url, headers=headers, json=payload, timeout=60)
+    response.raise_for_status()
+    data = response.json()
+
+    content = (
+        data.get("choices", [{}])[0]
+        .get("message", {})
+        .get("content", "")
+    )
+
+    return {
+        "model": data.get("model", model),
+        "response": content,
+        "usage": data.get("usage", {}),
+    }
 
 
 @mcp.tool()
@@ -90,7 +143,32 @@ def get_publications(pdb_id: str) -> list:
     return pubs
 
 
+@mcp.tool()
+def ask_llm(
+    prompt: str,
+    system_prompt: str = "You are a helpful assistant for protein structure analysis.",
+    temperature: float = 0.2,
+    max_tokens: int = 500,
+) -> dict:
+    """
+    Ask an LLM through an OpenAI-compatible API.
+
+    Example use:
+      ask_llm("Explain what ligand binding site means in simple words")
+    """
+    if not prompt.strip():
+        raise ValueError("prompt must not be empty")
+
+    return call_llm(
+        prompt=prompt.strip(),
+        system_prompt=system_prompt.strip() if system_prompt else None,
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+
+
 def main() -> None:
+    load_dotenv()
     transport = os.getenv("MCP_TRANSPORT", "stdio")
     #transport = os.getenv("MCP_TRANSPORT", "http")
 
