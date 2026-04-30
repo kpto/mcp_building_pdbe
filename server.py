@@ -8,7 +8,6 @@ from fastmcp import FastMCP
 
 from pdbe.client import PDBeClient, PDBeResult
 
-
 mcp = FastMCP("PDBe")
 pdbe_client = PDBeClient()
 
@@ -55,7 +54,7 @@ def get_uniprot_mappings(pdb_id: str) -> dict[str, Any]:
 
 def main() -> None:
     """Run the MCP server."""
-    mcp.run()
+    mcp.run(transport="http", host="0.0.0.0")
 
 
 if __name__ == "__main__":
