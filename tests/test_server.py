@@ -20,6 +20,10 @@ class FakePDBeClient:
         }
 
 
+def test_healthcheck_returns_service_status() -> None:
+    assert server.healthcheck() == {"status": "ok", "service": "pdbe-mcp"}
+
+
 @pytest.mark.parametrize(
     ("tool_name", "endpoint_key"),
     [
@@ -62,4 +66,3 @@ def test_main_runs_fastmcp_server(monkeypatch: pytest.MonkeyPatch) -> None:
     server.main()
 
     assert called is True
-

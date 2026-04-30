@@ -18,6 +18,12 @@ def _fetch_entry(endpoint_key: str, pdb_id: str) -> PDBeResult:
 
 
 @mcp.tool()
+def healthcheck() -> dict[str, str]:
+    """Simple connectivity check for clients."""
+    return {"status": "ok", "service": "pdbe-mcp"}
+
+
+@mcp.tool()
 def get_entry_summary(pdb_id: str) -> dict[str, Any]:
     """Get concise summary metadata for a PDB entry."""
     return _fetch_entry("summary", pdb_id)
@@ -54,4 +60,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
