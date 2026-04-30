@@ -28,6 +28,20 @@ Transport Type: STDIO<br>
 Command: /usr/local/bin/python3<br>
 Arguments: main.py<br>
 
+OR
+
+```bash
+python3 -m venv .venv   
+source .venv/bin/activate
+MCP_TRANSPORT=http python main.py
+```
+
+Settings:<br>
+Transport Type: Streamable HTTP<br>
+URL: http://localhost:8080/mcp
+<br>
+Arguments: main.py<br>
+
 ```bash
 uv sync
 uv run python main.py

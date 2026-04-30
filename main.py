@@ -1,4 +1,5 @@
 import os
+import time
 import requests
 from fastmcp import FastMCP
 from dotenv import load_dotenv
@@ -6,6 +7,7 @@ from dotenv import load_dotenv
 mcp = FastMCP("PDBe MCP Server")
 
 BASE_URL = "https://www.ebi.ac.uk/pdbe/api/pdb/entry"
+_LAST_LLM_CALL_TS = 0.0
 
 
 def normalize_pdb_id(pdb_id: str) -> str:
@@ -50,9 +52,32 @@ def call_llm(prompt: str, system_prompt: str | None = None, temperature: float =
         "Content-Type": "application/json",
     }
 
-    response = requests.post(url, headers=headers, json=payload, timeout=60)
-    response.raise_for_status()
-    data = response.json()
+    global _LAST_LLM_CALL_TS
+    min_interval_seconds = 2.0
+    now = time.time()
+    elapsed = now - _LAST_LLM_CALL_TS
+    if elapsed < min_interval_seconds:
+        time.sleep(min_interval_seconds - elapsed)
+
+    max_retries = 3
+    backoff_seconds = 2
+
+    for attempt in range(1, max_retries + 1):
+        response = requests.post(url, headers=headers, json=payload, timeout=60)
+        if response.status_code != 429:
+            response.raise_for_status()
+            data = response.json()
+            break
+
+        retry_after = response.headers.get("Retry-After")
+        wait_seconds = int(retry_after) if retry_after and retry_after.isdigit() else backoff_seconds * attempt
+        if attempt == max_retries:
+            raise ValueError(
+                "LLM provider returned 429 Too Many Requests. "
+                "Check API billing/quota and rate limits, then retry later."
+            )
+        time.sleep(wait_seconds)
+    _LAST_LLM_CALL_TS = time.time()
 
     content = (
         data.get("choices", [{}])[0]
